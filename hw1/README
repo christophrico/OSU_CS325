@@ -1,0 +1,15 @@
+# Assignment 1 README
+# Christopher Rico
+# CS325
+# OSU ID: 933239746
+
+Instructions:
+
+- Place data.txt in the same directory as either insert.py or merge.py
+
+- To execute, run either:
+  $ python insertSort.py
+  or
+  $ python mergeSort.py
+
+- Program will output results to a .out file. Done!
