@@ -1,3 +1,8 @@
+# Assignment 2
+# Christopher Rico
+# CS325
+# OSU ID: 933239746
+
 import math
 import timeit
 
@@ -33,7 +38,6 @@ def main():
 
         outFile.write('\n')
 
-    print ("Runtime is:")
     print stop - start
 
     dataFile.close()
