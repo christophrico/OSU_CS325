@@ -1,4 +1,5 @@
 import math
+import timeit
 
 def stoogeSort(arr, idxLow, idxHi):
     n = idxHi - idxLow + 1
@@ -23,12 +24,17 @@ def main():
 
         intArr = lineArr[1:]
 
+        start = timeit.default_timer()
         stoogeSort(intArr, 0, len(intArr) - 1)
+        stop = timeit.default_timer()
 
         for char in intArr:
             outFile.write(str(char) + ' ')
 
         outFile.write('\n')
+
+    print ("Runtime is:")
+    print stop - start
 
     dataFile.close()
     outFile.close()
