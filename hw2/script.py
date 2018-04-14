@@ -7,10 +7,10 @@ valueArr = [100, 200, 400, 500]
 
 #user-input algorithm to test
 algo = sys.argv[1]
-
+fileOut = sys.argv[2]
 
 #create the file to output running times to
-outFile = open("runningTime.csv", "w")
+outFile = open(fileOut, "w")
 outFile.write('N,Runtime')
 
 
