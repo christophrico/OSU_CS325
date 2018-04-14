@@ -1,0 +1,13 @@
+# Assignment 2 README
+# Christopher Rico
+# CS325
+# OSU ID: 933239746
+
+Instructions:
+
+- Place data.txt in the same directory as stoogeSort.py
+
+- To execute, run:
+  $ python stoogeSort.py
+
+- Program will output results to stooge.out file. Done!
