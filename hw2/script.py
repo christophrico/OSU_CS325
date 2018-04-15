@@ -5,13 +5,17 @@ import commands
 #put your n values you want to test in this array
 valueArr = [100, 200, 400, 500]
 
-#user-input algorithm to test
-algo = sys.argv[1]
-fileOut = sys.argv[2]
+#get and store the input arguments
+inputArgs = sys.argv
 
 #create the file to output running times to
-outFile = open(fileOut, "w")
-outFile.write('N,Runtime')
+outFile = open("runTimes.csv", "w")
+
+
+#write the column headers
+outFile.write('N')
+for z in inputArgs[1:]:
+    outFile.write(',' + str(z) + ' (s)')
 
 
 for x in valueArr:
@@ -19,17 +23,19 @@ for x in valueArr:
     randCall = "python randomNum.py " + str(x)
     os.system(randCall)
 
-    #print the value being tested
-    valPrint = "\nNum values: " + str(x)
-    print(valPrint)
+    outFile.write('\n' + str(x))
 
-    #call the algorithm to be tested
-    algoToRun = "python " + algo
-    resultTime =  commands.getoutput(algoToRun)
+    for y in inputArgs[1:]:
+        #print the algorithm being tested
+        print("Testing " + str(y) + ' with N: ' + str(x))
 
-    #write the results to the output file
-    outFile.write('\n' + str(x) + ',' + resultTime)
+        #call the algorithm to be tested
+        commandToRun = "python " + str(y)
+        resultTime = commands.getoutput(commandToRun)
+
+        #write the results to the output file
+        outFile.write(',' + str(resultTime))
 
 
 outFile.close
-print("Finished!")
+print("All done!")
