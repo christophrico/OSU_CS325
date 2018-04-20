@@ -1,0 +1,13 @@
+# Assignment 3 README
+# Christopher Rico
+# CS325
+# OSU ID: 933239746
+
+Instructions:
+
+- Place amount.txt in the same directory as makingChange.py
+
+- To execute, run:
+  $ python makingChange.py
+
+- Program will output results to change.txt file. Done!
