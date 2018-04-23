@@ -4,7 +4,7 @@ import commands
 
 #put your n values you want to test in this array
 valueArr = [50, 100, 200, 500, 1000, 2000, 4000, 5000, 10000, 20000, 50000]
-amountArr = [11, 26, 32, 38, 43, 50, 67, 74, 89, 110, 217, 385, 400, 598]
+amountArr = [110, 260, 320, 380, 430, 500, 670, 740, 890, 1100, 2170, 3850, 4000, 5980]
 
 #get and store the input arguments
 inputArgs = sys.argv
@@ -38,6 +38,6 @@ for x in valueArr:
             #write the results to the output file
             outFile.write(',' + str(resultTime))
 
-
+os.system("rm -f amount.txt change.txt")
 outFile.close
 print("All done!")
