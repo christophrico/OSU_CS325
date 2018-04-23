@@ -11,7 +11,7 @@ import timeit
 #add two arrays together
 def addArrays(array1, array2):
     for x in range(0, len(array1)):
-        array1[x] += int(array2[x])
+        array1[x] += array2[x]
 
 
 
@@ -20,42 +20,39 @@ def makeChange(denoms, amount):
     currentDenomsCount = denoms
 
     #fills out a 2d array of possible coins per amount of money
-    for x in range(0, amount):
+    #values in the array are number of coins per denomination
+    #and the last value in the array is the total number of coins
+    for x in range(0, amount+1):
         coinAmountTracker.append([])
-        for y in range(1, len(denoms)+1):
+        #with an extra sub-array at the last index for tracking
+        for y in range(1, len(denoms)+2):
             coinAmountTracker[x].append(0)
 
 
     #iterate through all numbers from 1 to the target coin amount
-    for j in range(0, amount):
+    for j in range(0, amount+1):
         amountLeft = j
         #iterate through all coin denominations starting with the largest
         for i in range(len(denoms)-1, -1, -1):
-            print("Iteration " + str(j+1) + ' ' + str(i+1))
-            print("And the coinAmountTracker: ")
-            print(coinAmountTracker)
             if amountLeft > 0:
                 currentCoin = denoms[i]
-                print("Current coin is " + str(currentCoin))
 
                 if currentCoin <= amountLeft:
                     #calculates the number needed of the current coin
                     numCurrentCoin = math.floor(amountLeft / currentCoin)
-                    print("This is how many of these coins we need to make change " + str(numCurrentCoin))
                     # adds the number to the result array
                     coinAmountTracker[j][i] += int(numCurrentCoin)
-                    #keeps a running total on the subarray
-                    coinAmountTracker[j][len(denoms)-1] += int(numCurrentCoin)
+                    #keeps a running total of how many coins we have used
+                    coinAmountTracker[j][len(denoms)] += int(numCurrentCoin)
                     #calculates the remainder
                     amountLeft -= int(numCurrentCoin * currentCoin)
-                    print("The remainder is " + str(amountLeft))
                     #looks for previous calculations using the amount in the remainder
                     #then adds the 2 arrays of results if found
                     if amountLeft > 0:
                         addArrays(coinAmountTracker[j], coinAmountTracker[amountLeft])
                         amountLeft = 0
 
-    return (coinAmountTracker[int(amount/2)])
+    return (coinAmountTracker[amount])
 
 
 
@@ -82,14 +79,14 @@ def main():
         changeArray = makeChange(denomArray, amount)
         stop = timeit.default_timer()
 
-        #write the change amount and num coins to the change file
+
+        #write the change amount to the change file
         numCoins = 0
-        for vals in changeArray:
+        for vals in changeArray[:-1]:
             outFile.write(str(vals) + ' ')
-            #calculate the minimum number of coins used
-            numCoins += vals
+        #write the number of coins used to the change file
         outFile.write('\n')
-        outFile.write(str(numCoins))
+        outFile.write(str(changeArray[-1]))
         outFile.write('\n')
 
     print stop - start
