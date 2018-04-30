@@ -22,35 +22,29 @@ def lastToStart(activityList):
 
     chosenActivites = []
     #get the activity that starts last
-    chosenActivites.append(listOfActivities[0])
-    lastAddedActivity = listOfActivities[0]
+    chosenActivites.append(activityList[0])
+    lastAddedActivity = activityList[0]
 
     #iterate through all the activities
-    for j in range(1, len(listOfActivities)):
-        potentialActivity = listOfActivities[j]
+    for j in range(1, len(activityList)):
+        potentialActivity = activityList[j]
 
         #if an activity ends earlier than the last one chosen starts
         if potentialActivity.end <= lastAddedActivity.start:
             #choose it to do
-            chosenActivites.push(listOfActivities[j])
-            lastAddedActivity = listOfActivities[j]
+            chosenActivites.append(activityList[j])
+            lastAddedActivity = activityList[j]
 
     return chosenActivites
 
 
 
 def main():
-    dataFile = open("act.txt", "r")
-
-    #split the file into an array of values
-    for line in dataFile:
-        multiLineArray = list(map(int, line.split()))
+    multiLineArray = open("act.txt", "r").readlines()
 
     #get the number of activities of the first set
-    numActivities = multiLineArray[0]
     activityArr = []
     setNum = 0
-
 
     #split multiLineArray by spaces - get start and stop values to individual indexes
     for j in range(1, len(multiLineArray)):
@@ -60,19 +54,12 @@ def main():
         for i in range(0, len(lineArray)):
             lineArray[i] = int(lineArray[i])
 
-        #push
-        if len(lineArray) != 1:
-            activityNum = lineArray[0]
-            start = lineArray[1]
-            end = lineArray[2]
-            activityArr.append(Activity.(activityNum, start, end))
-
-        else:
-            setNum++
+        if len(lineArray) == 1 or j == len(multiLineArray)-1:
+            setNum += 1
             print("Set " + str(setNum))
-            chosenActivites = lastToStart(activityArray)
+            chosenActivites = lastToStart(activityArr)
             numChosen = len(chosenActivites)
-            print("Number of activites selected = " + str(numChosen))
+            print("Number of activites selected: " + str(numChosen))
             print("Activities: ")
             chosenActivites.reverse()
 
@@ -81,6 +68,13 @@ def main():
 
             print("\n")
             activityArr = []
+
+        else:
+            activityNum = lineArray[0]
+            start = lineArray[1]
+            end = lineArray[2]
+            activityArr.append(Activity(activityNum, start, end))
+
 
 
 if __name__ == '__main__':

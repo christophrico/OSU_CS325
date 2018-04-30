@@ -1,0 +1,13 @@
+# Assignment 4 README
+# Christopher Rico
+# CS325
+# OSU ID: 933239746
+
+Instructions:
+
+- Place act.txt in the same directory as activities.py
+
+- To execute, run:
+  $ python3 activities.py
+
+- Program will output results to console. Done!
