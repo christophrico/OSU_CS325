@@ -1,0 +1,270 @@
+#!/usr/bin/python3
+
+# Christopher Rico, Gerry Ashlock, and Greg Tsang
+# Final Project - TSP implementation
+# CS325
+# 6/8/18
+
+
+import timeit
+from array import array as pyarray
+import operator
+import sys
+import math
+
+
+def getPathWeight(dMatrix, path, startPt, endPt):
+    #turn the path into an iterable
+    itPath = iter(path)
+    #get the next city from the path so we can build a linked list
+    j = next(itPath)
+
+    pathWeight = 0
+    for i in itPath:
+        if i >= j:
+            pathWeight += dMatrix[i][j]
+        else:
+            pathWeight += dMatrix[j][i]
+
+        j = i
+
+    #manually add the final edge from the start city to the end city
+    if startPt > endPt:
+        pathWeight += dMatrix[startPt][endPt]
+    else:
+        pathWeight += dMatrix[endPt][startPt]
+
+    return pathWeight
+
+
+
+def optimizePath(path, connections, distMatrix, start):
+    numCities = len(connections)
+
+    def findDist(i,j):
+        iP = path[i]
+        jP = path[j]
+        if iP > jP:
+            return distMatrix[iP][jP]
+        else:
+            return distMatrix[jP][iP]
+
+    #pairwise optimization
+    for a in range(numCities-1):
+        b = a + 1
+        for c in range(b+2, numCities-1):
+            d = c+1
+            #choose four different cities and compare the distance between them in sets
+            deltaD = findDist(a,b) + findDist(c,d) -(findDist(a,c)+findDist(b,d))
+            #if the path becomes shorter from switching them, do it
+            if deltaD > 0:
+                connections[path[a]].remove(path[b])
+                connections[path[a]].append(path[c])
+                connections[path[b]].remove(path[a])
+                connections[path[b]].append(path[d])
+
+                connections[path[c]].remove(path[d])
+                connections[path[c]].append(path[a])
+                connections[path[d]].remove(path[c])
+                connections[path[d]].append(path[b])
+                #rebuild the path
+                path[:] = buildPath(connections, start)
+
+
+
+def buildPath(connects, startPt):
+    path = [startPt]
+    prevPoint = None
+    currentPoint = startPt
+
+    while True:
+        #get an array of connections extending from the next point to look at
+        #that do not include the previous point examined
+        nextPoints = [point for point in connects[currentPoint] if point != prevPoint]
+        #if there are no more points to look at, we done
+        if not nextPoints:
+            break
+        #get the next point from the array
+        nextPoint = nextPoints[0]
+        #append it to the path
+        path.append(nextPoint)
+        #advance the list
+        prevPoint = currentPoint
+        currentPoint = nextPoint
+
+    return path
+
+
+
+def returnSortedByDist(dist):
+    numCities = len(dist)
+    idxList = []
+    for i in range(numCities):
+        for j in range(i):
+            idxList.append(i*numCities+j)
+
+    idxList.sort(key = lambda ij: dist[ij//numCities][ij%numCities])
+    sorted = []
+    for ij in idxList:
+        value = (ij//numCities,ij%numCities)
+        sorted.append(value)
+
+    return sorted
+
+
+
+def edgeCreatesSubtour(i, j, segs, nodeV):
+    subtour = False
+
+    #get segment of current edges under examination
+    iSeg,jSeg = segs[i],segs[j]
+    #get node valence of points under examination
+    iVal,jVal = nodeV[i],nodeV[j]
+
+    #if either of the nodes cannot accept a connection, it's a subtour
+    if nodeV[i] < 1 or nodeV[j] < 1:
+        subtour = True
+    #if either of the segments are already the same, it's a subtour
+    if iSeg is jSeg:
+        subtour = True
+
+    return subtour
+
+
+
+def makeConnection(i, j, nodeV, segs, connects):
+    #add the two points to each other's connections
+    #and remove one valence possibility from each
+    nodeV[i] -= 1
+    nodeV[j] -= 1
+    connects[i].append(j)
+    connects[j].append(i)
+
+    iSeg = segs[i]
+    jSeg = segs[j]
+    #choose the smaller segment to add into the bigger one
+    #then merge the two segments
+    if len(jSeg) > len(iSeg):
+        iSeg, jSeg = jSeg, iSeg
+        i,j = j,i
+
+    for node in jSeg:
+        segs[node] = iSeg
+
+    iSeg.extend(jSeg)
+
+
+
+def nearFragTSP(distMatrix):
+    numCities = len(distMatrix)
+
+    #initialize each node to have two possible connections
+    nodeValence = pyarray('i', [2])*numCities
+    #for each node, we want to give it the ability to store 1 or 2 connections
+    connections = [[] for i in range(numCities)]
+    #segments of nodes. each segment begins with itself
+    segments = [[j] for j in range(numCities)]
+
+    #sort the pairs by distance
+    sortedPairs = returnSortedByDist(distMatrix)
+
+    #the first sorted pair in the list contains the starting point
+    #it has a valence of 1 because we only want one connection leaving it
+    startPoint = sortedPairs[0]
+    start, end = startPoint
+    nodeValence[start] = 1
+
+
+    #now begins the algorithm
+    #iterate through the edges in increasing order
+    edgesRemaining = numCities - 1
+    for i,j in sortedPairs:
+        #if this edge creates a subtour, skip it
+        if edgeCreatesSubtour(i, j, segments, nodeValence):
+            continue
+
+        #otherwise, make the connection between the two nodes
+        makeConnection(i, j, nodeValence, segments, connections)
+        edgesRemaining -= 1
+
+        #if we have added as many connections as there are nodes, we done
+        if edgesRemaining == 0:
+            break
+
+
+    #build the path from the connections we made using the start point we chose
+    path = buildPath(connections, start)
+
+    #do pairwise optimization this to make it closer to 1.25
+    for _ in range(3):
+        optimizePath(path, connections, distMatrix, start);
+
+    #get the end point (the last node in the path)
+    end = path[-1]
+    #calculate the weight of the final path
+    weight = getPathWeight(distMatrix, path, start, end)
+
+
+    return weight, path
+
+
+
+def main():
+    #get the city data into a big ol array
+    fileName = sys.argv[1]
+    multiLineArray = open(fileName, "r").readlines()
+
+    cityList = []
+    #get the city data in from the file
+    for j in range(len(multiLineArray)):
+        #strip out the newlines and split the values by spaces
+        lineArray = multiLineArray[j].strip()
+        lineArray = lineArray.split()
+        #append a new distance tuple to the list of cities
+        cityTup = int(lineArray[1]), int(lineArray[2])
+        cityList.append(cityTup)
+
+
+    #build a left-triangular distance matrix d
+    d=[]
+    #calculate edge weights without redundancy
+    for i in range(len(cityList)):
+        #append a new array for each line in d
+        d.append([])
+        for k in range(i):
+            cityAx,cityAy = cityList[i]
+            cityBx,cityBy = cityList[k]
+            #formula for distance
+            dist = round( math.sqrt( ((cityAx - cityBx)**2) + ((cityAy - cityBy)**2) ) )
+            #append the dist to an array
+            d[i].append(dist)
+
+        #then a 0 for the diagonal
+        d[i].append(0)
+
+    #free up some mem
+    del cityList[:]
+
+
+    #run the algo to get the tour and path weight
+    #start recording time
+    #start = timeit.default_timer()
+    tourWeight, tourCities = nearFragTSP(d)
+    #end recording time
+    #stop = timeit.default_timer()
+
+    #output the data to specified file format
+    outputFile = fileName + ".tour"
+    with open(outputFile, "w") as f:
+        #write the tour weight
+        f.write(str(tourWeight) + "\n")
+        #write each city visited
+        for city in tourCities:
+            f.write(str(city) + "\n")
+        f.close()
+
+    #print("Runtime is " + str(stop-start))
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,12 @@
+# Christopher Rico, Gerry Ashlock, and Greg Tsang
+# Final Project README
+# CS325
+
+
+Instructions:
+-Place nearestFragTSP in the same directory as your input file.
+
+-To execute, run:
+$ ./nearestFragTSP <inputfile>
+
+-Results will be output to a file named <inputfile>.tour
