@@ -13,7 +13,10 @@ for x in range(0, numValues-1):
 
 for i in range(1, numValues):
 
-    nextDenom = numArray[i-1] + random.randint(0, math.floor(amount/numValues))
+    nextDenom = numArray[i-1] + random.randint(0, 4)
+    if nextDenom > amount:
+        nextDenom = numArray[i-1]
+        
     numArray[i] = nextDenom
 
 numArray[0] = 1
